@@ -1,12 +1,52 @@
 import os
 import sys
+import glob
 import time
 import shutil
 import subprocess
 import platform
+from typing import Optional
 
 
-def find_ollama_binary(os_name: str) -> str | None:
+def find_standard_windows_python() -> Optional[str]:
+    """Locate a standard win_amd64 Python interpreter (not MSYS2/MinGW)."""
+    candidates = []
+    local_pattern = os.path.expandvars(r"%LOCALAPPDATA%\Programs\Python\Python3*\python.exe")
+    prog_pattern = r"C:\Program Files\Python3*\python.exe"
+    candidates.extend(sorted(glob.glob(local_pattern), reverse=True))
+    candidates.extend(sorted(glob.glob(prog_pattern), reverse=True))
+
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def ensure_standard_python_on_windows():
+    """If invoked via MSYS2/MinGW Python on Windows, switch to standard Windows Python."""
+    if platform.system() != "Windows":
+        return
+
+    is_msys = (
+        "MSYS" in sys.version
+        or "MINGW" in sys.version
+        or "msys64" in sys.executable.lower()
+    )
+    if not is_msys:
+        return
+
+    print("[INFO] MSYS2/MinGW Python detected. Switching to standard Windows Python...")
+    std_python = find_standard_windows_python()
+    if std_python:
+        print(f"[INFO] Using: {std_python}\n")
+        subprocess.check_call([std_python, os.path.abspath(__file__)])
+        sys.exit(0)
+    else:
+        print("[ERROR] Please install standard Windows Python from https://www.python.org/downloads/ and re-run.")
+        sys.exit(1)
+
+
+def find_ollama_binary(os_name: str) -> Optional[str]:
     """Locate the ollama executable even if PATH hasn't refreshed after install."""
     path_bin = shutil.which("ollama")
     if path_bin:
@@ -17,7 +57,11 @@ def find_ollama_binary(os_name: str) -> str | None:
         if os.path.exists(win_default):
             return win_default
     elif os_name in ("Linux", "Darwin"):
-        for candidate in ("/usr/local/bin/ollama", "/opt/homebrew/bin/ollama"):
+        for candidate in (
+            "/usr/local/bin/ollama",
+            "/opt/homebrew/bin/ollama",
+            "/Applications/Ollama.app/Contents/Resources/ollama",
+        ):
             if os.path.exists(candidate):
                 return candidate
     return None
@@ -44,51 +88,47 @@ def setup_venv(os_name: str) -> str:
     return venv_python
 
 
-def install_ollama(os_name: str) -> str | None:
-    """Check if Ollama is installed; attempt automatic installation if missing."""
+def install_ollama(os_name: str) -> Optional[str]:
+    """Check if Ollama is installed; run official install script if missing."""
     print("[3/4] Checking Ollama installation...")
     ollama_bin = find_ollama_binary(os_name)
     if ollama_bin:
         print(f"      Ollama found at: {ollama_bin}")
         return ollama_bin
 
-    print("      Ollama not found. Attempting automatic installation...")
+    print("      Ollama not found. Running official installer script...")
     try:
         if os_name == "Windows":
-            if shutil.which("winget"):
-                subprocess.check_call([
-                    "winget", "install", "-e", "--id", "Ollama.Ollama",
-                    "--accept-package-agreements", "--accept-source-agreements"
-                ])
-            else:
-                print("      [WARNING] 'winget' not available. Download Ollama manually from https://ollama.com")
+            ps_bin = shutil.which("powershell") or shutil.which("pwsh")
+            if not ps_bin:
+                print("      [WARNING] PowerShell not found. Download Ollama manually from https://ollama.com/download")
                 return None
+            subprocess.check_call([
+                ps_bin,
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                "irm https://ollama.com/install.ps1 | iex",
+            ])
 
-        elif os_name == "Linux":
+        elif os_name in ("Linux", "Darwin"):
             subprocess.check_call(["sh", "-c", "curl -fsSL https://ollama.com/install.sh | sh"])
-
-        elif os_name == "Darwin":
-            if shutil.which("brew"):
-                subprocess.check_call(["brew", "install", "ollama"])
-            else:
-                print("      [WARNING] Homebrew not found. Download Ollama manually from https://ollama.com")
-                return None
 
         return find_ollama_binary(os_name)
     except Exception as e:
         print(f"      [WARNING] Automatic Ollama install failed: {e}")
-        print("      Please install Ollama manually from https://ollama.com")
+        print("      Please download and install Ollama manually from https://ollama.com/download")
         return None
 
 
-def ensure_llm_model(ollama_bin: str | None, model_name: str = "llama3.2"):
+def ensure_llm_model(ollama_bin: Optional[str], model_name: str = "llama3.2"):
     """Ensure the Ollama service is running and pull the required LLM model."""
     if not ollama_bin:
         print(f"[4/4] Skipping '{model_name}' model pull (Ollama not installed).")
         return
 
     print(f"[4/4] Checking local LLM model ({model_name})...")
-    # Ensure Ollama server is reachable; start in background if needed
     check = subprocess.run([ollama_bin, "list"], capture_output=True, text=True)
     if check.returncode != 0:
         print("      Starting Ollama background service...")
@@ -134,6 +174,7 @@ def check_os_network_prereqs(os_name: str):
 
 
 def main():
+    ensure_standard_python_on_windows()
     os_name = platform.system()
     print(f"=== Aegis-AI IPS Cross-Platform Setup ({os_name}) ===\n")
 
