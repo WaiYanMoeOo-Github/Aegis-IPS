@@ -26,11 +26,9 @@ Aegis-IPS/
 
 ## Prerequisites
 1. **Python 3.9+** (On Windows, use standard `win_amd64` Python; `setup.py` will automatically switch if invoked from MSYS2/MinGW).
-2. **Windows Only — Npcap:** Windows does not include a raw packet capture driver by default. Download and install [Npcap](https://npcap.com/) with **`Install Npcap in WinPcap API-compatible Mode`** checked before running `sensor.py`.
+2. **Windows Only — Npcap:** Download and install [Npcap](https://npcap.com/) with **`Install Npcap in WinPcap API-compatible Mode`** checked before running `sensor.py`.
 
 ## Quick Setup (Windows, Linux & macOS)
-
-Clone the repository and run `setup.py` to create a virtual environment (`venv`), install dependencies, install Ollama via its official script, and pull `llama3.2`:
 
 ```bash
 git clone [https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git](https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git)
@@ -68,34 +66,15 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 
 ### Option B: Background Auto-Start on Boot
 
-#### 1. Windows (Silent Startup via `run_hidden.vbs` & Task Scheduler)
-`run_hidden.vbs` launches both the FastAPI backend and Scapy packet sensor silently in the background with zero console windows.
-
-**Method 1 — Quick PowerShell Setup (Run as Administrator inside `Aegis-IPS` folder):**
-```powershell
-$action = New-ScheduledTaskAction -Execute "wscript.exe" -Argument "`"$PWD\run_hidden.vbs`""
-$trigger = New-ScheduledTaskTrigger -AtStartup
-$principal = New-ScheduledTaskPrincipal -UserId "NT AUTHORITY\SYSTEM" -LogonType ServiceAccount -RunLevel Highest
-$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit (New-TimeSpan -Seconds 0)
-Register-ScheduledTask -TaskName "Aegis-AI-IPS" -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force
-```
-*(To test immediately without rebooting, run: `Start-ScheduledTask -TaskName "Aegis-AI-IPS"`)*
-
-**Method 2 — Manual GUI Setup (`taskschd.msc`):**
+#### 1. Windows (Task Scheduler GUI)
 1. Press `Win + R`, type `taskschd.msc`, and press **Enter**.
 2. Click **Create Task...** in the right-hand Actions pane.
-3. **General Tab:**
-   - **Name:** `Aegis-AI-IPS`
-   - Select **Run whether user is logged on or not**
-   - Check **Run with highest privileges**
+3. **General Tab:** Enter **Name** (`Aegis-AI-IPS`), select **Run whether user is logged on or not**, and check **Run with highest privileges**.
 4. **Triggers Tab:** Click **New...** ➔ set **Begin the task** to **At startup** ➔ click **OK**.
-5. **Actions Tab:** Click **New...** ➔ set **Action** to **Start a program**:
-   - **Program/script:** `wscript.exe`
-   - **Add arguments (optional):** `"C:\full\path\to\Aegis-IPS\run_hidden.vbs"` *(wrap path in double quotes if it contains spaces)*
-6. **Conditions & Settings Tabs:**
-   - Uncheck **Start the task only if the computer is on AC power** (recommended for laptops).
-   - Uncheck **Stop the task if it runs longer than: 3 days** so the IPS runs continuously.
-7. Click **OK** to save.
+5. **Actions Tab:** Click **New...** ➔ set **Program/script** to `wscript.exe` and **Add arguments** to `"C:\full\path\to\Aegis-IPS\run_hidden.vbs"` ➔ click **OK**.
+6. **Conditions & Settings Tabs:** Uncheck **Start the task only if the computer is on AC power** and **Stop the task if it runs longer than: 3 days**.
+7. Click **OK** and enter your Windows password to save.
 
 #### 2. Linux (Ubuntu / Kali via `systemd`)
-Create two `systemd` unit files pointing to your `Aegis-IPS` directory (`User=root`) for the backend (`uvicorn`) and `sensor.py`, then enable both with `sudo systemctl enable --now aegis-backend aegis-sensor`.
+1. Create `/etc/systemd/system/aegis-backend.service` and `/etc/systemd/system/aegis-sensor.service` running as `User=root` pointing to `venv/bin/python`.
+2. Run `sudo systemctl daemon-reload` and `sudo systemctl enable --now aegis-backend aegis-sensor`.
