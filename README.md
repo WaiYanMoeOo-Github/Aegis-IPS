@@ -40,11 +40,13 @@ Clone the repository and run `setup.py` to create a virtual environment (`venv`)
 git clone [https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git](https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git)
 cd Aegis-IPS
 ```
+<br>
 
 **Windows**
 ```powershell
 python setup.py    # Or 'py setup.py' if MSYS2 is in PATH
 ```
+<br>
 
 **Linux & MacOS**
 ```bash
@@ -56,6 +58,8 @@ sudo -v && python3 setup.py
 
 Packet sniffing and firewall modification require **Administrator** (Windows) or **root** (Linux/macOS) privileges.
 
+<br>
+
 ### Option A: Run Manually
 
 **Windows (PowerShell / CMD as Administrator)**
@@ -66,7 +70,7 @@ venv\Scripts\python.exe -m uvicorn main:app --host 0.0.0.0 --port 8000
 # Terminal 2: Real-Time Packet Sensor
 venv\Scripts\python.exe sensor.py
 ```
-
+<br>
 
 **Linux & MacOS (Terminal with `sudo`)**
 ```bash
@@ -76,11 +80,12 @@ sudo venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000
 # Terminal 2: Real-Time Packet Sensor
 sudo venv/bin/python sensor.py
 ```
-
+<br>
 
 Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 
 ---
+<br><br>
 
 ### Option B: Background Auto-Start on Boot
 
@@ -93,7 +98,7 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 6. **Conditions & Settings Tabs:** Uncheck **Start the task only if the computer is on AC power** and **Stop the task if it runs longer than: 3 days**.
 7. Click **OK** to save.
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br>
 
 #### 2. Linux (Ubuntu / Kali via `systemd`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
@@ -114,6 +119,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
+<br>
 
 2. Create `/etc/systemd/system/aegis-sensor.service`:
 ```ini
@@ -132,12 +138,14 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
+<br>
 
 3. Enable and start both services:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now aegis-backend aegis-sensor
 ```
+<br><br>
 
 #### 3. macOS (via `launchd` / `LaunchDaemons`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
