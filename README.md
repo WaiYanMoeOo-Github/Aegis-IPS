@@ -90,7 +90,6 @@ sudo venv/bin/python sensor.py
 Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 
 ---
-<br>
 
 ### Option B: Background Auto-Start on Boot
 
