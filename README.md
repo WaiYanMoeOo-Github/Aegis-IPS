@@ -94,21 +94,7 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 6. **Conditions & Settings Tabs:** Uncheck **Start the task only if the computer is on AC power** and **Stop the task if it runs longer than: 3 days**.
 7. Click **OK** to save.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 #### 2. Linux (Ubuntu / Kali via `systemd`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
