@@ -109,7 +109,7 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 #### 2. Linux (Ubuntu / Kali via `systemd`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
 
-1. Create `/etc/systemd/system/aegis-backend.service`:
+1. Run `sudo nano /etc/systemd/system/aegis-backend.service`, paste the following:
 ```ini
 [Unit]
 Description=Aegis-AI IPS FastAPI Backend
@@ -125,6 +125,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
+Save (`Ctrl + O`, `Enter`, `Ctrl + X`).
 <br>
 
 2. Create `/etc/systemd/system/aegis-sensor.service`:
