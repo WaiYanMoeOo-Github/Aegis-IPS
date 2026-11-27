@@ -89,6 +89,8 @@ sudo venv/bin/python sensor.py
 
 Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 
+<br>
+
 ---
 
 ### Option B: Background Auto-Start on Boot
@@ -215,12 +217,14 @@ sudo chmod 644 /Library/LaunchDaemons/com.aegis.backend.plist /Library/LaunchDae
 sudo launchctl bootstrap system /Library/LaunchDaemons/com.aegis.backend.plist
 sudo launchctl bootstrap system /Library/LaunchDaemons/com.aegis.sensor.plist
 ```
+<br>
 
 ---
 
 ## Uninstall / Clean Removal
 
-To completely remove auto-start tasks/services, Ollama (including downloaded models), `venv`, and the `Aegis-IPS` directory:
+To completely remove auto-start, Ollama (including downloaded models), `venv`, and the `Aegis-IPS` directory:
+<br>
 
 ### 1. Windows (PowerShell as Administrator)
 1. Stop and delete the Task Scheduler task, running processes, and firewall rules:
