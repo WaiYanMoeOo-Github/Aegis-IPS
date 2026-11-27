@@ -1,14 +1,13 @@
 # Aegis-AI IPS
 
-An autonomous, cross-platform **AI-Driven Intrusion Prevention System (IPS)** powered by **Scapy**, **FastAPI**, and a local **Ollama (`llama3.2`)** LLM agent. It monitors real-time network traffic, detects volumetric attacks and application-layer exploits, and automatically enforces OS-level firewall blocks without relying on external cloud APIs.<br />
-
+An autonomous, cross-platform **AI-Driven Intrusion Prevention System (IPS)** powered by **Scapy**, **FastAPI**, and a local **Ollama (`llama3.2`)** LLM agent. It monitors real-time network traffic, detects volumetric attacks and application-layer exploits, and automatically enforces OS-level firewall blocks without relying on external cloud APIs.
 
 ## Key Features
 - **Real-Time Packet Inspection:** Captures live network traffic via Scapy while filtering encrypted TLS (`443`) noise to minimize false positives.
 - **Autonomous AI Threat Analysis:** Uses a local Ollama LLM (`llama3.2`) to inspect payloads (SQL Injection, Path Traversal, XSS, Command Injection) and traffic rates (ICMP Flood, Port Scanning, DDoS).
 - **Cross-Platform Firewall Enforcement:** Automatically detects the host OS and applies block/unblock rules using `netsh` (Windows), `iptables` (Linux), or `pfctl` (macOS).
 - **Live Web Dashboard:** Bootstrap 5 interface with real-time attack logs, AI reasoning explanations, and one-click manual block/unblock controls backed by SQLite.
-- **One-Command Setup & Silent Auto-Start:** Includes `setup.py` for automated environment provisioning and native background startup support (`run_hidden.vbs` + Task Scheduler on Windows, `systemd` on Linux, `launchd` on macOS).<br />
+- **One-Command Setup & Silent Auto-Start:** Includes `setup.py` for automated environment provisioning and native background startup support (`run_hidden.vbs` + Task Scheduler on Windows, `systemd` on Linux, `launchd` on macOS).
 
 
 ## Project Structure
@@ -25,7 +24,6 @@ Aegis-IPS/
 └── templates/
     └── index.html        # Live monitoring web dashboard
 ```
-<br>
 
 ## Prerequisites
 1. **Python 3.9+**
@@ -93,6 +91,7 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 6. **Conditions & Settings Tabs:** Uncheck **Start the task only if the computer is on AC power** and **Stop the task if it runs longer than: 3 days**.
 7. Click **OK** to save.
 
+<br><br><br>
 #### 2. Linux (Ubuntu / Kali via `systemd`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
 
