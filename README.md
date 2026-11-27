@@ -25,7 +25,7 @@ Aegis-IPS/
 └── templates/
     └── index.html        # Live monitoring web dashboard
 ```
-<br><br>
+<br>
 
 ## Prerequisites
 1. **Python 3.9+**
@@ -57,7 +57,7 @@ python setup.py    # Or 'py setup.py' if MSYS2 is in PATH
 ```bash
 sudo -v && python3 setup.py
 ```
-<br><br>
+<br>
 
 ## Running Aegis-AI IPS
 
