@@ -158,10 +158,9 @@ sudo systemctl enable --now aegis-backend aegis-sensor
 <br><br>
 
 #### 3. macOS (via `launchd` / `LaunchDaemons`)
-Replace `/path/to/Aegis-IPS` with your actual project directory path.
-
 Run `sudo nano /Library/LaunchDaemons/com.aegis.backend.plist`, paste the following:
 - Replace `/path/to/Aegis-IPS` with your actual project directory path.
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "[http://www.apple.com/DTDs/PropertyList-1.0.dtd](http://www.apple.com/DTDs/PropertyList-1.0.dtd)">
