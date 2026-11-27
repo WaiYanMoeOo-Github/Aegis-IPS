@@ -1,8 +1,7 @@
 # Aegis-AI IPS
 
-An autonomous, cross-platform **AI-Driven Intrusion Prevention System (IPS)** powered by **Scapy**, **FastAPI**, and a local **Ollama (`llama3.2`)** LLM agent. It monitors real-time network traffic, detects volumetric attacks and application-layer exploits, and automatically enforces OS-level firewall blocks without relying on external cloud APIs.<br />
-
-
+An autonomous, cross-platform **AI-Driven Intrusion Prevention System (IPS)** powered by **Scapy**, **FastAPI**, and a local **Ollama (`llama3.2`)** LLM agent. It monitors real-time network traffic, detects volumetric attacks and application-layer exploits, and automatically enforces OS-level firewall blocks without relying on external cloud APIs.
+<br><br><br>
 
 ## Key Features
 - **Real-Time Packet Inspection:** Captures live network traffic via Scapy while filtering encrypted TLS (`443`) noise to minimize false positives.
