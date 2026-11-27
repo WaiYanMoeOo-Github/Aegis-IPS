@@ -56,6 +56,7 @@
                             <tr>
                                 <th class="ps-4">Time</th>
                                 <th>Source IP</th>
+                                <th>Protocol &amp; Flags</th>
                                 <th>Detection (AI)</th>
                                 <th>AI Reasoning</th>
                                 <th>Status</th>
@@ -70,6 +71,40 @@
     </div>
 
     <script>
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text ?? '';
+            return div.innerHTML;
+        }
+
+        function renderProtocolAndFlags(protocol, tcpFlags) {
+            const proto = (protocol || 'UNKNOWN').toUpperCase();
+            let protoBadge = `<span class="badge bg-secondary">${escapeHtml(proto)}</span>`;
+
+            if (proto === 'TCP') {
+                protoBadge = `<span class="badge bg-primary">TCP</span>`;
+            } else if (proto === 'UDP') {
+                protoBadge = `<span class="badge bg-info text-dark">UDP</span>`;
+            } else if (proto === 'ICMP') {
+                protoBadge = `<span class="badge bg-warning text-dark">ICMP</span>`;
+            }
+
+            if (proto === 'TCP' && tcpFlags && tcpFlags !== '-') {
+                const scanFlags = new Set(['SYN', 'NULL', 'FIN-PSH-URG', 'FIN', 'RST']);
+                const flagBadges = tcpFlags.split(',').map(rawFlag => {
+                    const flag = rawFlag.trim();
+                    const safeFlag = escapeHtml(flag);
+                    if (scanFlags.has(flag)) {
+                        return `<span class="badge bg-danger bg-opacity-25 text-danger border border-danger font-monospace ms-1">${safeFlag}</span>`;
+                    }
+                    return `<span class="badge bg-dark border border-secondary text-light font-monospace ms-1">${safeFlag}</span>`;
+                }).join('');
+                return `${protoBadge}${flagBadges}`;
+            }
+
+            return protoBadge;
+        }
+
         async function fetchLogs() {
             const response = await fetch('/api/logs');
             const data = await response.json();
@@ -94,15 +129,16 @@
                     : '<span class="badge bg-warning text-dark">Unblocked</span>';
                 
                 const actionBtn = log.status === 'Blocked'
-                    ? `<button class="btn btn-sm btn-outline-success w-100 fw-bold" onclick="performAction('${log.ip}', 'unblock')">Unblock</button>`
-                    : `<button class="btn btn-sm btn-outline-danger w-100 fw-bold" onclick="performAction('${log.ip}', 'block')">Block</button>`;
+                    ? `<button class="btn btn-sm btn-outline-success w-100 fw-bold" onclick="performAction('${escapeHtml(log.ip)}', 'unblock')">Unblock</button>`
+                    : `<button class="btn btn-sm btn-outline-danger w-100 fw-bold" onclick="performAction('${escapeHtml(log.ip)}', 'block')">Block</button>`;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="ps-4 align-middle text-nowrap">${log.time}</td>
-                        <td class="font-monospace text-info align-middle text-nowrap">${log.ip}</td>
-                        <td class="align-middle fw-semibold">${log.attack}</td>
-                        <td class="align-middle reason-cell">${log.reason || '-'}</td>
+                        <td class="ps-4 align-middle text-nowrap">${escapeHtml(log.time)}</td>
+                        <td class="font-monospace text-info align-middle text-nowrap">${escapeHtml(log.ip)}</td>
+                        <td class="align-middle text-nowrap">${renderProtocolAndFlags(log.protocol, log.tcp_flags)}</td>
+                        <td class="align-middle fw-semibold">${escapeHtml(log.attack)}</td>
+                        <td class="align-middle reason-cell">${escapeHtml(log.reason || '-')}</td>
                         <td class="align-middle">${statusBadge}</td>
                         <td class="pe-4 align-middle" style="width: 130px;">${actionBtn}</td>
                     </tr>

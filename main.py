@@ -21,7 +21,7 @@ def get_db_connection():
     return conn
 
 def init_db():
-    """Initialize the SQLite database and create the attack_logs table if missing."""
+    """Initialize the SQLite database and create or migrate the attack_logs table."""
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -29,12 +29,25 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             time TEXT NOT NULL,
             ip TEXT UNIQUE NOT NULL,
+            protocol TEXT NOT NULL DEFAULT 'UNKNOWN',
+            tcp_flags TEXT NOT NULL DEFAULT '-',
             attack TEXT NOT NULL,
             reason TEXT NOT NULL,
             status TEXT NOT NULL,
             updated_at REAL NOT NULL
         )
     """)
+
+    # Auto-migrate existing aegis.db tables without deleting old records
+    for col_sql in [
+        "ALTER TABLE attack_logs ADD COLUMN protocol TEXT NOT NULL DEFAULT 'UNKNOWN'",
+        "ALTER TABLE attack_logs ADD COLUMN tcp_flags TEXT NOT NULL DEFAULT '-'",
+    ]:
+        try:
+            cursor.execute(col_sql)
+        except sqlite3.OperationalError:
+            pass
+
     conn.commit()
     conn.close()
 
@@ -48,6 +61,7 @@ class ActionRequest(BaseModel):
 class TrafficData(BaseModel):
     ip: str
     protocol: str
+    tcp_flags: str = "-"
     port: int
     packet_count: int
     payload: str = ""
@@ -65,7 +79,7 @@ async def get_logs():
     """Fetch all threat logs ordered by most recently updated."""
     conn = get_db_connection()
     rows = conn.execute(
-        "SELECT id, time, ip, attack, reason, status FROM attack_logs ORDER BY updated_at DESC"
+        "SELECT id, time, ip, protocol, tcp_flags, attack, reason, status FROM attack_logs ORDER BY updated_at DESC"
     ).fetchall()
     conn.close()
     return {"logs": [dict(row) for row in rows]}
@@ -99,7 +113,8 @@ async def analyze_and_prevent(data: TrafficData):
     """Receive traffic telemetry, consult AI Agent, auto-block if malicious, and preserve Blocked status."""
     conn = get_db_connection()
     existing = conn.execute(
-        "SELECT id, time, ip, attack, reason, status FROM attack_logs WHERE ip = ?", (data.ip,)
+        "SELECT id, time, ip, protocol, tcp_flags, attack, reason, status FROM attack_logs WHERE ip = ?",
+        (data.ip,)
     ).fetchone()
 
     # If the IP is already Blocked, do NOT let subsequent low-volume traffic overwrite it to Normal/Unblocked
@@ -111,8 +126,15 @@ async def analyze_and_prevent(data: TrafficData):
             "log": dict(existing)
         }
 
-    print(f"\n[SENSOR ALERT] Analyzing {data.ip} ({data.protocol}:{data.port}, {data.packet_count} pkt/s)...", flush=True)
-    decision = analyze_traffic(data.ip, data.protocol, data.port, data.packet_count, data.payload)
+    protocol = (data.protocol or "UNKNOWN").upper()
+    tcp_flags = data.tcp_flags if protocol == "TCP" and data.tcp_flags else "-"
+    flag_display = f" [{tcp_flags}]" if tcp_flags != "-" else ""
+
+    print(
+        f"\n[SENSOR ALERT] Analyzing {data.ip} ({protocol}{flag_display}:{data.port}, {data.packet_count} pkt/s)...",
+        flush=True
+    )
+    decision = analyze_traffic(data.ip, protocol, data.port, data.packet_count, data.payload)
     print(f"[AI DECISION] {decision}", flush=True)
 
     status = "Unblocked"
@@ -127,19 +149,22 @@ async def analyze_and_prevent(data: TrafficData):
 
     # Insert new IP or update existing IP record cleanly without duplicates
     conn.execute("""
-        INSERT INTO attack_logs (time, ip, attack, reason, status, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO attack_logs (time, ip, protocol, tcp_flags, attack, reason, status, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(ip) DO UPDATE SET
             time = excluded.time,
+            protocol = excluded.protocol,
+            tcp_flags = excluded.tcp_flags,
             attack = excluded.attack,
             reason = excluded.reason,
             status = excluded.status,
             updated_at = excluded.updated_at
-    """, (current_time, data.ip, attack_name, reason, status, now_ts))
+    """, (current_time, data.ip, protocol, tcp_flags, attack_name, reason, status, now_ts))
     conn.commit()
 
     active_row = conn.execute(
-        "SELECT id, time, ip, attack, reason, status FROM attack_logs WHERE ip = ?", (data.ip,)
+        "SELECT id, time, ip, protocol, tcp_flags, attack, reason, status FROM attack_logs WHERE ip = ?",
+        (data.ip,)
     ).fetchone()
     conn.close()
 

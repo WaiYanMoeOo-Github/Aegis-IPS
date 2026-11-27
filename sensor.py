@@ -10,8 +10,19 @@ WINDOW_SECONDS = 3
 HIGH_VOLUME_THRESHOLD = 30  # Only report high-volume traffic (>= 30 packets in 3s)
 PLAINTEXT_PORTS = {80, 8000, 8080, 21, 23, 25}  # Inspect payloads only on unencrypted ports
 
+TCP_FLAG_NAMES = {
+    "F": "FIN",
+    "S": "SYN",
+    "R": "RST",
+    "P": "PSH",
+    "A": "ACK",
+    "U": "URG",
+    "E": "ECE",
+    "C": "CWR",
+}
+
 def get_local_ip() -> str:
-    """Detect the primary local IP address of this Windows machine."""
+    """Detect the primary local IP address of this machine."""
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(("8.8.8.8", 80))
@@ -28,9 +39,18 @@ def is_printable_ascii(text: str) -> bool:
     printable = sum(32 <= ord(c) <= 126 or c in "\r\n\t" for c in text)
     return (printable / len(text)) >= 0.85
 
+def format_tcp_flags(tcp_layer) -> str:
+    """Convert Scapy TCP flags (e.g., 'S', 'PA', 'FPU', '') into readable labels."""
+    raw_flags = str(tcp_layer.flags)
+    if not raw_flags:
+        return "NULL"
+    return "-".join(TCP_FLAG_NAMES.get(ch, ch) for ch in raw_flags)
+
 LOCAL_IP = get_local_ip()
 traffic_lock = threading.Lock()
-traffic_stats = defaultdict(lambda: {"protocol": "OTHER", "port": 0, "count": 0, "payload": ""})
+traffic_stats = defaultdict(
+    lambda: {"protocol": "OTHER", "tcp_flags": [], "port": 0, "count": 0, "payload": ""}
+)
 
 def process_packet(packet):
     """Callback triggered for every captured incoming IP packet."""
@@ -45,6 +65,7 @@ def process_packet(packet):
         return
 
     protocol = "OTHER"
+    tcp_flag = "-"
     dst_port = 0
     src_port = 0
 
@@ -52,6 +73,7 @@ def process_packet(packet):
         protocol = "TCP"
         dst_port = packet[TCP].dport
         src_port = packet[TCP].sport
+        tcp_flag = format_tcp_flags(packet[TCP])
     elif packet.haslayer(UDP):
         protocol = "UDP"
         dst_port = packet[UDP].dport
@@ -80,6 +102,8 @@ def process_packet(packet):
         entry["protocol"] = protocol
         entry["port"] = dst_port
         entry["count"] += 1
+        if tcp_flag != "-" and tcp_flag not in entry["tcp_flags"] and len(entry["tcp_flags"]) < 3:
+            entry["tcp_flags"].append(tcp_flag)
         if payload_text and not entry["payload"]:
             entry["payload"] = payload_text
 
@@ -97,14 +121,17 @@ def flush_and_analyze():
 
             # Forward only if traffic is high-volume OR contains a readable plaintext payload
             if info["count"] >= HIGH_VOLUME_THRESHOLD or has_payload:
+                tcp_flags_str = ", ".join(info["tcp_flags"]) if info["tcp_flags"] else "-"
                 telemetry = {
                     "ip": ip,
                     "protocol": info["protocol"],
+                    "tcp_flags": tcp_flags_str,
                     "port": info["port"],
                     "packet_count": pkt_per_sec,
-                    "payload": info["payload"]
+                    "payload": info["payload"],
                 }
-                print(f"[REAL SENSOR] Forwarding {ip} ({info['protocol']}:{info['port']}, {pkt_per_sec} pkt/s)")
+                flag_display = f" [{tcp_flags_str}]" if tcp_flags_str != "-" else ""
+                print(f"[REAL SENSOR] Forwarding {ip} ({info['protocol']}{flag_display}:{info['port']}, {pkt_per_sec} pkt/s)")
                 try:
                     requests.post(API_URL, json=telemetry, timeout=120)
                 except Exception as e:
