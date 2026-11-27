@@ -128,7 +128,9 @@ WantedBy=multi-user.target
 Save File: (`Ctrl + O`, `Enter`, `Ctrl + X`).
 <br><br>
 
-2. Create `/etc/systemd/system/aegis-sensor.service`:
+Run `sudo nano /etc/systemd/system/aegis-sensor.service`, paste the following:
+- Replace `/path/to/Aegis-IPS` with your actual project directory path.
+
 ```ini
 [Unit]
 Description=Aegis-AI IPS Scapy Packet Sensor
@@ -145,7 +147,8 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 ```
-<br>
+Save File: (`Ctrl + O`, `Enter`, `Ctrl + X`).
+<br><br>
 
 3. Enable and start both services:
 ```bash
