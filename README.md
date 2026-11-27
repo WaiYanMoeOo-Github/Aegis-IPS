@@ -1,16 +1,15 @@
 # Aegis-AI IPS
 
 An autonomous, cross-platform **AI-Driven Intrusion Prevention System (IPS)** powered by **Scapy**, **FastAPI**, and a local **Ollama (`llama3.2`)** LLM agent. It monitors real-time network traffic, detects volumetric attacks and application-layer exploits, and automatically enforces OS-level firewall blocks without relying on external cloud APIs.
-<br><br><br>
-
+<br><br>
 
 ## Key Features
 - **Real-Time Packet Inspection:** Captures live network traffic via Scapy while filtering encrypted TLS (`443`) noise to minimize false positives.
 - **Autonomous AI Threat Analysis:** Uses a local Ollama LLM (`llama3.2`) to inspect payloads (SQL Injection, Path Traversal, XSS, Command Injection) and traffic rates (ICMP Flood, Port Scanning, DDoS).
 - **Cross-Platform Firewall Enforcement:** Automatically detects the host OS and applies block/unblock rules using `netsh` (Windows), `iptables` (Linux), or `pfctl` (macOS).
 - **Live Web Dashboard:** Bootstrap 5 interface with real-time attack logs, AI reasoning explanations, and one-click manual block/unblock controls backed by SQLite.
-- **One-Command Setup & Silent Auto-Start:** Includes `setup.py` for automated environment provisioning and native background startup support (`run_hidden.vbs` + Task Scheduler on Windows, `systemd` on Linux, `launchd` on macOS).<br />
-
+- **One-Command Setup & Silent Auto-Start:** Includes `setup.py` for automated environment provisioning and native background startup support (`run_hidden.vbs` + Task Scheduler on Windows, `systemd` on Linux, `launchd` on macOS).
+<br><br>
 
 ## Project Structure
 ```text
@@ -26,12 +25,12 @@ Aegis-IPS/
 └── templates/
     └── index.html        # Live monitoring web dashboard
 ```
-<br>
+<br><br>
 
 ## Prerequisites
 1. **Python 3.9+**
 2. **Windows Only — Npcap:** Download and install [Npcap](https://npcap.com/) with **`Install Npcap in WinPcap API-compatible Mode`** checked before running `sensor.py`.
-
+<br><br>
 
 ## Quick Setup
 
@@ -51,7 +50,7 @@ python setup.py    # Or 'py setup.py' if MSYS2 is in PATH
 ```bash
 sudo -v && python3 setup.py
 ```
-
+<br><br>
 
 ## Running Aegis-AI IPS
 
