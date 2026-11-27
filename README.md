@@ -30,11 +30,12 @@ Aegis-IPS/
 ## Prerequisites
 1. **Python 3.9+**
 2. **Windows Only — Npcap:** Download and install [Npcap](https://npcap.com/) with **`Install Npcap in WinPcap API-compatible Mode`** checked before running `sensor.py`.
-<br><br>
+<br><br><br>
 
 ## Quick Setup
 
 Clone the repository and run `setup.py` to create a virtual environment (`venv`), install dependencies, install Ollama, and pull `llama3.2`:
+<br>
 
 ```bash
 git clone [https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git](https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git)
@@ -85,7 +86,7 @@ sudo venv/bin/python sensor.py
 Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 
 ---
-<br><br>
+<br>
 
 ### Option B: Background Auto-Start on Boot
 
@@ -98,7 +99,7 @@ Open `http://127.0.0.1:8000` in your browser to access the dashboard.
 6. **Conditions & Settings Tabs:** Uncheck **Start the task only if the computer is on AC power** and **Stop the task if it runs longer than: 3 days**.
 7. Click **OK** to save.
 
-<br><br><br>
+<br><br>
 
 #### 2. Linux (Ubuntu / Kali via `systemd`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
@@ -178,6 +179,7 @@ Replace `/path/to/Aegis-IPS` with your actual project directory path.
 </dict>
 </plist>
 ```
+<br>
 
 2. Create `/Library/LaunchDaemons/com.aegis.sensor.plist`:
 ```xml
@@ -201,6 +203,7 @@ Replace `/path/to/Aegis-IPS` with your actual project directory path.
 </dict>
 </plist>
 ```
+<br>
 
 3. Set permissions and load both daemons:
 ```bash
@@ -224,15 +227,20 @@ Unregister-ScheduledTask -TaskName "Aegis-AI-IPS" -Confirm:$false -ErrorAction S
 Stop-Process -Name "python", "wscript", "ollama*" -Force -ErrorAction SilentlyContinue
 Get-NetFirewallRule -DisplayName "Aegis*" -ErrorAction SilentlyContinue | Remove-NetFirewallRule
 ```
+<br>
+
 2. Uninstall Ollama and delete model files:
 ```powershell
 & "$env:LOCALAPPDATA\Programs\Ollama\unins000.exe" /SILENT
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "$env:LOCALAPPDATA\Programs\Ollama", "$env:USERPROFILE\.ollama"
 ```
+<br>
+
 3. Delete the `Aegis-IPS` folder (includes `venv`):
 ```powershell
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue "C:\full\path\to\Aegis-IPS"
 ```
+<br><br>
 
 ### 2. Linux (Ubuntu / Kali)
 1. Stop, disable, and delete `systemd` services:
@@ -242,16 +250,21 @@ sudo systemctl disable aegis-backend aegis-sensor ollama 2>/dev/null
 sudo rm -f /etc/systemd/system/aegis-backend.service /etc/systemd/system/aegis-sensor.service /etc/systemd/system/ollama.service
 sudo systemctl daemon-reload
 ```
+<br>
+
 2. Remove Ollama binary, models, and service user:
 ```bash
 sudo rm -f /usr/local/bin/ollama /usr/bin/ollama
 sudo rm -rf /usr/share/ollama ~/.ollama
 sudo userdel ollama 2>/dev/null; sudo groupdel ollama 2>/dev/null
 ```
+<br>
+
 3. Delete the `Aegis-IPS` folder (includes `venv`):
 ```bash
 rm -rf /path/to/Aegis-IPS
 ```
+<br><br>
 
 ### 3. macOS
 1. Unload and delete `launchd` daemons:
@@ -260,11 +273,15 @@ sudo launchctl bootout system /Library/LaunchDaemons/com.aegis.backend.plist 2>/
 sudo launchctl bootout system /Library/LaunchDaemons/com.aegis.sensor.plist 2>/dev/null
 sudo rm -f /Library/LaunchDaemons/com.aegis.backend.plist /Library/LaunchDaemons/com.aegis.sensor.plist
 ```
+<br>
+
 2. Remove Ollama app, CLI binary, and models:
 ```bash
 pkill -f Ollama 2>/dev/null; pkill -f ollama 2>/dev/null
 sudo rm -rf /Applications/Ollama.app /usr/local/bin/ollama ~/.ollama
 ```
+<br>
+
 3. Delete the `Aegis-IPS` folder (includes `venv`):
 ```bash
 rm -rf /path/to/Aegis-IPS
