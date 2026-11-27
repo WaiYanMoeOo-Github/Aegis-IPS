@@ -150,7 +150,7 @@ WantedBy=multi-user.target
 Save File: (`Ctrl + O`, `Enter`, `Ctrl + X`).
 <br><br>
 
-3. Enable and start both services:
+Enable and start both services:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now aegis-backend aegis-sensor
@@ -160,7 +160,8 @@ sudo systemctl enable --now aegis-backend aegis-sensor
 #### 3. macOS (via `launchd` / `LaunchDaemons`)
 Replace `/path/to/Aegis-IPS` with your actual project directory path.
 
-1. Create `/Library/LaunchDaemons/com.aegis.backend.plist`:
+Run `sudo nano /Library/LaunchDaemons/com.aegis.backend.plist`, paste the following:
+- Replace `/path/to/Aegis-IPS` with your actual project directory path.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "[http://www.apple.com/DTDs/PropertyList-1.0.dtd](http://www.apple.com/DTDs/PropertyList-1.0.dtd)">
@@ -188,9 +189,10 @@ Replace `/path/to/Aegis-IPS` with your actual project directory path.
 </dict>
 </plist>
 ```
-<br>
+Save File: (`Ctrl + O`, `Enter`, `Ctrl + X`).
+<br><br>
 
-2. Create `/Library/LaunchDaemons/com.aegis.sensor.plist`:
+Run `sudo nano /Library/LaunchDaemons/com.aegis.sensor.plist`, paste the following:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "[http://www.apple.com/DTDs/PropertyList-1.0.dtd](http://www.apple.com/DTDs/PropertyList-1.0.dtd)">
@@ -212,9 +214,10 @@ Replace `/path/to/Aegis-IPS` with your actual project directory path.
 </dict>
 </plist>
 ```
-<br>
+Save File: (`Ctrl + O`, `Enter`, `Ctrl + X`).
+<br><br>
 
-3. Set permissions and load both daemons:
+Set permissions and load both daemons:
 ```bash
 sudo chown root:wheel /Library/LaunchDaemons/com.aegis.backend.plist /Library/LaunchDaemons/com.aegis.sensor.plist
 sudo chmod 644 /Library/LaunchDaemons/com.aegis.backend.plist /Library/LaunchDaemons/com.aegis.sensor.plist
