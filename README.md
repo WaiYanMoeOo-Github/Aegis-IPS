@@ -34,13 +34,17 @@ Aegis-IPS/
 
 ## Quick Setup
 
-Clone the repository and run `setup.py` to create a virtual environment (`venv`), install dependencies, install Ollama, and pull `llama3.2`:
+Clone the repository:
 <br>
 
+**Open Powershell or Terminal**
 ```bash
 git clone [https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git](https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git)
 cd Aegis-IPS
 ```
+<br>
+
+Run `setup.py` to create a virtual environment (`venv`), install dependencies, install Ollama, and pull `llama3.2`:
 <br>
 
 **Windows**
