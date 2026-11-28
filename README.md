@@ -39,7 +39,7 @@ Clone the repository:
 
 **Open Powershell or Terminal**
 ```bash
-git clone [https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git](https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git)
+git clone https://github.com/WaiYanMoeOo-Github/Aegis-IPS.git
 cd Aegis-IPS
 ```
 <br>
